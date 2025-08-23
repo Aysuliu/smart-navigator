@@ -66,6 +66,61 @@ function recommend(selected, pois, curves, n = 3) {
     .slice(0, n);
 }
 
+// Weather helper functions
+function getWeatherIcon(condition) {
+  const icons = {
+    'clear': '☀️',
+    'clouds': '☁️',
+    'rain': '🌧️',
+    'snow': '❄️',
+    'thunderstorm': '⛈️',
+    'drizzle': '🌦️',
+    'mist': '🌫️',
+    'fog': '🌫️',
+    'haze': '🌫️',
+    'smoke': '🌫️',
+    'dust': '🌫️',
+    'sand': '🌫️',
+    'ash': '🌫️',
+    'squall': '💨',
+    'tornado': '🌪️'
+  };
+  return icons[condition] || '🌤️';
+}
+
+function getWeatherRecommendation(attraction, weather) {
+  if (!weather || !attraction) return null;
+  
+  const { condition, temperature } = weather;
+  const { type } = attraction;
+  
+  if (type === 'beach') {
+    if (condition === 'clear' && temperature >= 20) {
+      return { message: 'Perfect beach weather!', color: '#2e7d32' };
+    } else if (condition === 'rain' || condition === 'thunderstorm') {
+      return { message: 'Avoid beach - bad weather', color: '#d32f2f' };
+    } else {
+      return { message: 'Moderate beach conditions', color: '#fbc02d' };
+    }
+  } else if (type === 'temple' || type === 'cultural') {
+    if (condition === 'rain' || condition === 'snow') {
+      return { message: 'Indoor cultural activities recommended', color: '#1976d2' };
+    } else {
+      return { message: 'Good weather for cultural visits', color: '#2e7d32' };
+    }
+  } else if (type === 'nature' || type === 'park') {
+    if (condition === 'clear' && temperature >= 15) {
+      return { message: 'Excellent for outdoor activities', color: '#2e7d32' };
+    } else if (condition === 'rain' || condition === 'thunderstorm') {
+      return { message: 'Consider indoor alternatives', color: '#d32f2f' };
+    } else {
+      return { message: 'Moderate outdoor conditions', color: '#fbc02d' };
+    }
+  }
+  
+  return { message: 'Standard weather conditions', color: '#666' };
+}
+
 /* ---------- component ---------- */
 export default function App() {
   // map & overlays
@@ -89,6 +144,10 @@ export default function App() {
   // user location
   const [myLoc, setMyLoc] = useState(null);
 
+  // weather
+  const [weather, setWeather] = useState(null);
+  const [weatherLoading, setWeatherLoading] = useState(false);
+
   /* init map + load data + geolocation */
   useEffect(() => {
     const m = L.map("map").setView([35.155, 129.12], 12);
@@ -103,6 +162,33 @@ export default function App() {
       setPois(await fetchJSON("/data/pois.json"));
       setCurves(await fetchJSON("/data/crowd_curves.json"));
     })();
+
+    // Fetch weather data
+    const fetchWeather = async () => {
+      try {
+        setWeatherLoading(true);
+        const weatherData = await fetchJSON("/api/weather/current");
+        setWeather(weatherData.data);
+      } catch (error) {
+        console.error("Failed to fetch weather:", error);
+        // Use fallback weather data
+        setWeather({
+          temperature: 22,
+          condition: 'clear',
+          description: 'clear sky',
+          humidity: 65,
+          windSpeed: 3.2,
+          visibility: 10,
+          timestamp: Date.now()
+        });
+      } finally {
+        setWeatherLoading(false);
+      }
+    };
+
+    fetchWeather();
+    // Refresh weather every 10 minutes
+    const weatherInterval = setInterval(fetchWeather, 10 * 60 * 1000);
 
     // choose nearest POI on map click
     m.on("click", (e) => {
@@ -133,7 +219,10 @@ export default function App() {
         { enableHighAccuracy: true, timeout: 8000 }
       );
     }
-    return () => m.remove();
+    return () => { 
+      m.remove(); 
+      clearInterval(weatherInterval);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -238,6 +327,76 @@ export default function App() {
       <div style={{ padding:12, borderRight:"1px solid #ddd", overflowY:"auto" }}>
         <h2>Busan Crowd + Ways to Get There</h2>
 
+        {/* Weather Display */}
+        {weather && (
+          <div style={{ 
+            marginBottom: 16, 
+            padding: 12, 
+            border: "1px solid #e0e0e0", 
+            borderRadius: 8,
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            color: "white"
+          }}>
+            <div style={{ display: "flex", alignItems: "center", marginBottom: 8 }}>
+              <span style={{ fontSize: 24, marginRight: 8 }}>
+                {getWeatherIcon(weather.condition)}
+              </span>
+              <div>
+                <div style={{ fontSize: 18, fontWeight: 600 }}>
+                  {weather.temperature}°C
+                </div>
+                <div style={{ fontSize: 12, opacity: 0.9 }}>
+                  {weather.description}
+                </div>
+              </div>
+            </div>
+            
+            <div style={{ 
+              display: "grid", 
+              gridTemplateColumns: "1fr 1fr", 
+              gap: 8, 
+              fontSize: 12,
+              opacity: 0.9
+            }}>
+              <div>💨 Wind: {weather.windSpeed} m/s</div>
+              <div>👁️ Visibility: {weather.visibility} km</div>
+              <div>💧 Humidity: {weather.humidity}%</div>
+              <div>🕐 Updated: {new Date(weather.timestamp).toLocaleTimeString()}</div>
+            </div>
+
+            {/* Weather-based recommendation for selected POI */}
+            {selectedPoi && (
+              <div style={{ 
+                marginTop: 12, 
+                padding: 8, 
+                background: "rgba(255,255,255,0.2)", 
+                borderRadius: 6,
+                border: "1px solid rgba(255,255,255,0.3)"
+              }}>
+                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>
+                  Weather Advice for {selectedPoi.name}:
+                </div>
+                {(() => {
+                  const recommendation = getWeatherRecommendation(selectedPoi, weather);
+                  return recommendation ? (
+                    <div style={{ 
+                      color: recommendation.color, 
+                      fontSize: 11,
+                      fontWeight: 500
+                    }}>
+                      {recommendation.message}
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 11, opacity: 0.8 }}>
+                      Check weather conditions before visiting
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Search */}
         <label>Search place</label>
         <input
@@ -336,6 +495,7 @@ export default function App() {
         <p style={{fontSize:12,opacity:.7,marginTop:12}}>
           Click the map or search to pick a place. We color crowd: green (not crowded), yellow (medium), red (crowded).
           Recommendations show quieter nearby spots. Routing uses your location if available.
+          Weather data helps plan your visit better!
         </p>
       </div>
 

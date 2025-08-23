@@ -9,18 +9,33 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+// --- Weather Integration ---
+const { WeatherTourismService, setupWeatherRoutes } = require("./weather_integration.js");
+const weatherService = new WeatherTourismService(process.env.OPENWEATHER_API_KEY);
+
 // --- Static Data Serving ---
 // Serve local static data (hotspots, entrances)
 app.use("/data", express.static(path.join(__dirname, "data")));
+
 // --- Configuration ---
 const KAKAO_REST_KEY = process.env.KAKAO_REST_KEY;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ""; // Add GEMINI_API_KEY to your .env
+const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY || ""; // Add OPENWEATHER_API_KEY to your .env
+
 if (!KAKAO_REST_KEY) {
     console.warn("Warning: KAKAO_REST_KEY not found in .env. Kakao API calls may fail.");
 }
 if (!GEMINI_API_KEY) {
     console.warn("Warning: GEMINI_API_KEY not found in .env. LLM API calls may fail.");
 }
+if (!OPENWEATHER_API_KEY) {
+    console.warn("Warning: OPENWEATHER_API_KEY not found in .env. Weather API calls may fail.");
+}
+
+// --- Weather Routes ---
+setupWeatherRoutes(app, weatherService);
+
 // --- Helper Functions (Crowd Density Logic - Translated from Python) ---
 /**
  * Calculates a safety score for a given polyline (route or point) based on nearby hotspots.
