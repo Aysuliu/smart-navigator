@@ -323,7 +323,7 @@ export default function App() {
   const selectedMeta = selectedScore!=null ? crowdLevel(selectedScore) : null;
 
   return (
-    <div style={{ display:"grid", gridTemplateColumns:"360px 1fr", height:"100vh" }}>
+    <div style={{ display:"grid", gridTemplateColumns:"400px 1fr", height:"100vh" }}>
       <div style={{ padding: 12, borderRight: "1px solid #ddd", overflowY: "auto", background: "#fafbfc" }}>
         <div style={{ 
           textAlign: "center", 
@@ -465,7 +465,7 @@ export default function App() {
         {/* Search */}
         <div style={{ 
           marginBottom: 16,
-          padding: 16,
+          padding: "12px",
           border: "1px solid #e0e0e0",
           borderRadius: 12,
           background: "#f8f9fa"
@@ -485,11 +485,13 @@ export default function App() {
             placeholder="Type attraction name (e.g., Haeundae, BEXCO, Gamcheon)..."
             style={{ 
               width: "100%",
-              padding: "12px 16px",
+              padding: "10px 12px",
               border: "1px solid #ddd",
               borderRadius: 8,
               fontSize: 14,
-              background: "white"
+              background: "white",
+              boxSizing: "border-box",
+              margin: 0
             }}
           />
           {filtered.length > 0 && (
@@ -499,13 +501,17 @@ export default function App() {
               marginTop: 8,
               background: "white",
               maxHeight: "200px",
-              overflowY: "auto"
+              overflowY: "auto",
+              width: "100%",
+              boxSizing: "border-box",
+              position: "relative",
+              zIndex: 1000
             }}>
               {filtered.map(p => (
                 <div 
                   key={p.id} 
                   style={{ 
-                    padding: "12px 16px", 
+                    padding: "10px 12px", 
                     cursor: "pointer",
                     borderBottom: "1px solid #f0f0f0",
                     transition: "background-color 0.2s"
@@ -528,7 +534,7 @@ export default function App() {
         {selectedPoi && selectedMeta && (
           <div style={{ 
             marginTop: 16, 
-            padding: 16, 
+            padding: 12, 
             border: "1px solid #e0e0e0", 
             borderRadius: 12,
             background: "linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)",
@@ -651,7 +657,7 @@ export default function App() {
         {recs.length > 0 && (
           <div style={{ 
             marginTop: 16,
-            padding: 16,
+            padding: 12,
             border: "1px solid #e0e0e0",
             borderRadius: 12,
             background: "#f8f9fa"
@@ -705,7 +711,7 @@ export default function App() {
         {/* Route Options */}
         <div style={{ 
           marginTop: 16,
-          padding: 16,
+          padding: 12,
           border: "1px solid #e0e0e0",
           borderRadius: 12,
           background: "#f8f9fa"
@@ -821,7 +827,7 @@ export default function App() {
           fontSize: 12,
           opacity: 0.7,
           marginTop: 16,
-          padding: 16,
+          padding: 12,
           background: "#ecf0f1",
           borderRadius: 8,
           lineHeight: 1.5
