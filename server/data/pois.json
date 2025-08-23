@@ -1,0 +1,10 @@
+[
+  {"id":"busan-station","name":"Busan Station","lon":129.0403,"lat":35.1151,"category":"transport"},
+  {"id":"bexco","name":"BEXCO","lon":129.1366,"lat":35.1699,"category":"venue"},
+  {"id":"haeundae","name":"Haeundae Beach","lon":129.1613,"lat":35.1590,"category":"beach"},
+  {"id":"gwangalli","name":"Gwangalli Beach","lon":129.1189,"lat":35.1532,"category":"beach"},
+  {"id":"jagalchi","name":"Jagalchi Market","lon":129.0359,"lat":35.0979,"category":"market"},
+  {"id":"gamcheon","name":"Gamcheon Culture Village","lon":129.0108,"lat":35.0975,"category":"attraction"},
+  {"id":"centum","name":"Centum City Mall","lon":129.1296,"lat":35.1690,"category":"shopping"},
+  {"id":"taejongdae","name":"Taejongdae","lon":129.0896,"lat":35.0517,"category":"park"}
+]

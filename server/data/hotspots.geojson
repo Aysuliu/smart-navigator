@@ -1,0 +1,13 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    { "type":"Feature","properties":{"name":"Hotspot-Gwangan"},
+      "geometry":{"type":"Point","coordinates":[129.1187,35.1530]}},
+    { "type":"Feature","properties":{"name":"Hotspot-BEXCO"},
+      "geometry":{"type":"Point","coordinates":[129.1361,35.1696]}},
+    { "type":"Feature","properties":{"name":"Hotspot-Haeundae"},
+      "geometry":{"type":"Point","coordinates":[129.1604,35.1586]}},
+    { "type":"Feature","properties":{"name":"Hotspot-Seomyeon"},
+      "geometry":{"type":"Point","coordinates":[129.0595,35.1576]}}
+  ]
+}
