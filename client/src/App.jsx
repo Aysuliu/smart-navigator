@@ -324,8 +324,33 @@ export default function App() {
 
   return (
     <div style={{ display:"grid", gridTemplateColumns:"360px 1fr", height:"100vh" }}>
-      <div style={{ padding:12, borderRight:"1px solid #ddd", overflowY:"auto" }}>
-        <h2>Busan Crowd + Ways to Get There</h2>
+      <div style={{ padding: 12, borderRight: "1px solid #ddd", overflowY: "auto", background: "#fafbfc" }}>
+        <div style={{ 
+          textAlign: "center", 
+          marginBottom: 20,
+          padding: "20px 0",
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          borderRadius: "0 0 16px 16px",
+          margin: "-12px -12px 20px -12px",
+          color: "white"
+        }}>
+          <h1 style={{ 
+            margin: 0, 
+            fontSize: 24, 
+            fontWeight: 700,
+            textShadow: "0 2px 4px rgba(0,0,0,0.3)"
+          }}>
+            🚢 Busan Smart Navigator
+          </h1>
+          <div style={{ 
+            fontSize: 14, 
+            opacity: 0.9, 
+            marginTop: 4,
+            fontWeight: 400
+          }}>
+            Discover Busan with Crowd Intelligence & Weather
+          </div>
+        </div>
 
         {/* Weather Display */}
         {weather && (
@@ -397,106 +422,420 @@ export default function App() {
           </div>
         )}
 
-        {/* Search */}
-        <label>Search place</label>
-        <input
-          value={search}
-          onChange={e=>setSearch(e.target.value)}
-          placeholder="Type e.g. Haeundae, BEXCO…"
-          style={{ width:"100%" }}
-        />
-        {filtered.length>0 && (
-          <div style={{ border:"1px solid #eee", padding:6, marginTop:4 }}>
-            {filtered.map(p=>(
-              <div key={p.id} style={{ padding:"4px 0", cursor:"pointer" }}
-                   onClick={()=>selectPoi(p)}>
-                {p.name}
-              </div>
-            ))}
+        {/* Location Indicator */}
+        <div style={{ 
+          marginBottom: 16,
+          padding: 12,
+          border: "1px solid #e0e0e0",
+          borderRadius: 8,
+          background: "#e8f5e8",
+          borderColor: "#4caf50"
+        }}>
+          <div style={{ 
+            display: "flex", 
+            alignItems: "center", 
+            marginBottom: 8 
+          }}>
+            <span style={{ fontSize: 16, marginRight: 8 }}>📍</span>
+            <span style={{ 
+              fontSize: 14, 
+              fontWeight: 600, 
+              color: "#2e7d32" 
+            }}>
+              Your Location
+            </span>
           </div>
-        )}
+          {myLoc ? (
+            <div style={{ fontSize: 12, color: "#388e3c" }}>
+              ✅ GPS Location Active
+              <div style={{ marginTop: 4, opacity: 0.8 }}>
+                {myLoc.lat.toFixed(4)}, {myLoc.lon.toFixed(4)}
+              </div>
+            </div>
+          ) : (
+            <div style={{ fontSize: 12, color: "#f57c00" }}>
+              🔍 Requesting location...
+              <div style={{ marginTop: 4, opacity: 0.8 }}>
+                Routes will use your current location
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Search */}
+        <div style={{ 
+          marginBottom: 16,
+          padding: 16,
+          border: "1px solid #e0e0e0",
+          borderRadius: 12,
+          background: "#f8f9fa"
+        }}>
+          <label style={{ 
+            display: "block", 
+            marginBottom: 8,
+            fontSize: 16,
+            fontWeight: 600,
+            color: "#2c3e50"
+          }}>
+            🔍 Search Attractions
+          </label>
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Type attraction name (e.g., Haeundae, BEXCO, Gamcheon)..."
+            style={{ 
+              width: "100%",
+              padding: "12px 16px",
+              border: "1px solid #ddd",
+              borderRadius: 8,
+              fontSize: 14,
+              background: "white"
+            }}
+          />
+          {filtered.length > 0 && (
+            <div style={{ 
+              border: "1px solid #e0e0e0", 
+              borderRadius: 8,
+              marginTop: 8,
+              background: "white",
+              maxHeight: "200px",
+              overflowY: "auto"
+            }}>
+              {filtered.map(p => (
+                <div 
+                  key={p.id} 
+                  style={{ 
+                    padding: "12px 16px", 
+                    cursor: "pointer",
+                    borderBottom: "1px solid #f0f0f0",
+                    transition: "background-color 0.2s"
+                  }}
+                  onMouseOver={(e) => e.target.style.background = "#f8f9fa"}
+                  onMouseOut={(e) => e.target.style.background = "white"}
+                  onClick={() => selectPoi(p)}
+                >
+                  <div style={{ fontWeight: 600, marginBottom: 4 }}>{p.name}</div>
+                  <div style={{ fontSize: 12, color: "#7f8c8d" }}>
+                    {p.type} • {p.distance ? `${p.distance.toFixed(1)} km away` : 'Click to select'}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* Selected place */}
         {selectedPoi && selectedMeta && (
-          <div style={{ marginTop:12, padding:8, border:"1px solid #eee", borderRadius:8 }}>
-            <div style={{ fontWeight:600 }}>{selectedPoi.name}</div>
-            <div style={{ marginTop:6 }}>
-              Crowd: <span style={{
-                background:selectedMeta.color, color:"#fff",
-                padding:"2px 8px", borderRadius:12, fontSize:12
-              }}>{selectedMeta.level}</span>
+          <div style={{ 
+            marginTop: 16, 
+            padding: 16, 
+            border: "1px solid #e0e0e0", 
+            borderRadius: 12,
+            background: "linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+          }}>
+            <div style={{ 
+              fontSize: 18, 
+              fontWeight: 600, 
+              marginBottom: 12,
+              color: "#2c3e50"
+            }}>
+              {selectedPoi.name}
             </div>
-            <div style={{ marginTop:8 }}>
-              <button onClick={getRoutes}>Route to here</button>
+            
+            <div style={{ 
+              display: "flex", 
+              alignItems: "center", 
+              marginBottom: 12 
+            }}>
+              <span style={{ marginRight: 8 }}>👥</span>
+              <span style={{ marginRight: 8 }}>Crowd Level:</span>
+              <span style={{
+                background: selectedMeta.color, 
+                color: "#fff",
+                padding: "4px 12px", 
+                borderRadius: 20, 
+                fontSize: 12,
+                fontWeight: 600
+              }}>
+                {selectedMeta.level}
+              </span>
+            </div>
+
+            {/* Estimated Travel Time */}
+            {routes.length > 0 && (
+              <div style={{ 
+                marginBottom: 16,
+                padding: 12,
+                background: "rgba(52, 152, 219, 0.1)",
+                border: "1px solid rgba(52, 152, 219, 0.3)",
+                borderRadius: 8
+              }}>
+                <div style={{ 
+                  fontSize: 14, 
+                  fontWeight: 600, 
+                  color: "#2980b9",
+                  marginBottom: 8
+                }}>
+                  🚗 Estimated Travel Time
+                </div>
+                {routes.map((route, index) => (
+                  <div key={index} style={{ 
+                    display: "flex", 
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "6px 0",
+                    borderBottom: index < routes.length - 1 ? "1px solid rgba(52, 152, 219, 0.2)" : "none"
+                  }}>
+                    <span style={{ fontSize: 13 }}>
+                      {route.label}
+                    </span>
+                    <span style={{ 
+                      fontSize: 14, 
+                      fontWeight: 600,
+                      color: "#2c3e50"
+                    }}>
+                      {route.summary?.duration ? 
+                        `${Math.round(route.summary.duration / 60)} min` : 
+                        'Calculating...'
+                      }
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div style={{ 
+              display: "flex", 
+              gap: 8,
+              marginTop: 16
+            }}>
+              <button 
+                onClick={getRoutes}
+                style={{
+                  padding: "10px 20px",
+                  background: "#3498db",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 8,
+                  cursor: "pointer",
+                  fontWeight: 600,
+                  flex: 1
+                }}
+                onMouseOver={(e) => e.target.style.background = "#2980b9"}
+                onMouseOut={(e) => e.target.style.background = "#3498db"}
+              >
+                🚗 Get Route
+              </button>
+              <button 
+                onClick={() => setSelectedPoi(null)}
+                style={{
+                  padding: "10px 16px",
+                  background: "#95a5a6",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 8,
+                  cursor: "pointer",
+                  fontWeight: 600
+                }}
+                onMouseOver={(e) => e.target.style.background = "#7f8c8d"}
+                onMouseOut={(e) => e.target.style.background = "#95a5a6"}
+              >
+                ✕
+              </button>
             </div>
           </div>
         )}
 
         {/* Recommendations */}
-        {recs.length>0 && (
-          <div style={{ marginTop:12 }}>
-            <div style={{ fontWeight:600 }}>Quieter nearby</div>
-            {recs.map(x=>(
-              <div key={x.poi.id} style={{ display:"flex", justifyContent:"space-between",
-                    padding:"6px 0", cursor:"pointer" }}
-                   onClick={()=>selectPoi(x.poi)}>
-                <span>{x.poi.name}</span>
-                <span style={{
-                  background: crowdLevel(x.score).color, color:"#fff",
-                  padding:"2px 8px", borderRadius:12, fontSize:12
-                }}>
-                  {x.dkm.toFixed(1)} km
-                </span>
+        {recs.length > 0 && (
+          <div style={{ 
+            marginTop: 16,
+            padding: 16,
+            border: "1px solid #e0e0e0",
+            borderRadius: 12,
+            background: "#f8f9fa"
+          }}>
+            <div style={{ 
+              fontWeight: 600, 
+              fontSize: 16,
+              marginBottom: 12,
+              color: "#2c3e50"
+            }}>
+              🎯 Quieter Nearby Spots
+            </div>
+            {recs.map(x => (
+              <div key={x.poi.id} style={{ 
+                display: "flex", 
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "10px 0", 
+                cursor: "pointer",
+                borderBottom: "1px solid #e9ecef",
+                transition: "background-color 0.2s"
+              }}
+              onMouseOver={(e) => e.target.parentElement.style.background = "#e9ecef"}
+              onMouseOut={(e) => e.target.parentElement.style.background = "transparent"}
+              onClick={() => selectPoi(x.poi)}>
+                <span style={{ fontSize: 14 }}>{x.poi.name}</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{
+                    background: crowdLevel(x.score).color, 
+                    color: "#fff",
+                    padding: "3px 10px", 
+                    borderRadius: 16, 
+                    fontSize: 11,
+                    fontWeight: 600
+                  }}>
+                    {crowdLevel(x.score).level}
+                  </span>
+                  <span style={{ 
+                    fontSize: 12, 
+                    color: "#7f8c8d",
+                    fontWeight: 500
+                  }}>
+                    {x.dkm.toFixed(1)} km
+                  </span>
+                </div>
               </div>
             ))}
           </div>
         )}
 
-        {/* Origin / Destination */}
-        <div style={{ marginTop:12 }}>
-          <label>Origin (lon,lat)</label>
-          <input value={o} onChange={e=>setO(e.target.value)} style={{ width:"100%" }} />
-          <div style={{ marginTop:6 }}>
-            <button onClick={()=>{ if(myLoc) setO(`${myLoc.lon},${myLoc.lat}`); }}>
-              Use my location {myLoc ? `(${myLoc.lon.toFixed(4)},${myLoc.lat.toFixed(4)})` : ""}
-            </button>
+        {/* Route Options */}
+        <div style={{ 
+          marginTop: 16,
+          padding: 16,
+          border: "1px solid #e0e0e0",
+          borderRadius: 12,
+          background: "#f8f9fa"
+        }}>
+          <div style={{ 
+            fontWeight: 600, 
+            fontSize: 16,
+            marginBottom: 12,
+            color: "#2c3e50"
+          }}>
+            🛣️ Route Options
+          </div>
+          
+          <div style={{ 
+            marginBottom: 16,
+            padding: 12,
+            background: "rgba(52, 152, 219, 0.1)",
+            border: "1px solid rgba(52, 152, 219, 0.3)",
+            borderRadius: 8,
+            fontSize: 12,
+            color: "#2980b9"
+          }}>
+            <strong>📍 Auto-routing:</strong> Routes will automatically start from your current GPS location to the selected destination.
+          </div>
+          
+          <div style={{ marginBottom: 12 }}>
+            <label style={{ 
+              display: "block", 
+              marginBottom: 6,
+              fontSize: 14,
+              fontWeight: 500,
+              color: "#34495e"
+            }}>
+              Priority:
+            </label>
+            <select 
+              value={priority} 
+              onChange={e => setPriority(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "8px 12px",
+                border: "1px solid #ddd",
+                borderRadius: 6,
+                fontSize: 14,
+                background: "white"
+              }}
+            >
+              <option value="RECOMMEND">🎯 Smart Recommendation</option>
+              <option value="TIME">⚡ Fastest Route</option>
+              <option value="DISTANCE">📏 Shortest Distance</option>
+            </select>
           </div>
 
-          <label style={{ marginTop:8, display:"block" }}>Destination (lon,lat)</label>
-          <input value={d} onChange={e=>setD(e.target.value)} style={{ width:"100%" }} />
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ 
+              display: "block", 
+              marginBottom: 6,
+              fontSize: 14,
+              fontWeight: 500,
+              color: "#34495e"
+            }}>
+              Avoid:
+            </label>
+            <select 
+              value={avoid} 
+              onChange={e => setAvoid(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "8px 12px",
+                border: "1px solid #ddd",
+                borderRadius: 6,
+                fontSize: 14,
+                background: "white"
+              }}
+            >
+              <option value="">🚫 Nothing (prefer fastest)</option>
+              <option value="toll">💰 Tolls</option>
+              <option value="motorway">🛣️ Highways</option>
+              <option value="ferries">⛴️ Ferries</option>
+              <option value="schoolzone">🏫 School Zones</option>
+              <option value="uturn">🔄 U-turns</option>
+              <option value="toll|motorway">💰🛣️ Tolls + Highways</option>
+            </select>
+          </div>
+
+          <button 
+            onClick={getRoutes}
+            disabled={!selectedPoi}
+            style={{
+              width: "100%",
+              padding: "12px 20px",
+              background: selectedPoi ? "#27ae60" : "#bdc3c7",
+              color: "white",
+              border: "none",
+              borderRadius: 8,
+              cursor: selectedPoi ? "pointer" : "not-allowed",
+              fontWeight: 600,
+              fontSize: 16,
+              transition: "background-color 0.2s"
+            }}
+            onMouseOver={(e) => {
+              if (selectedPoi) e.target.style.background = "#229954";
+            }}
+            onMouseOut={(e) => {
+              if (selectedPoi) e.target.style.background = "#27ae60";
+            }}
+          >
+            🚗 Get Routes
+          </button>
         </div>
 
-        {/* Options */}
-        <div style={{ marginTop:8 }}>
-          <label>Priority: </label>
-          <select value={priority} onChange={e=>setPriority(e.target.value)}>
-            <option value="RECOMMEND">RECOMMEND</option>
-            <option value="TIME">TIME (fastest)</option>
-            <option value="DISTANCE">DISTANCE (shortest)</option>
-          </select>
+        <div style={{
+          fontSize: 12,
+          opacity: 0.7,
+          marginTop: 16,
+          padding: 16,
+          background: "#ecf0f1",
+          borderRadius: 8,
+          lineHeight: 1.5
+        }}>
+          <div style={{ fontWeight: 600, marginBottom: 8, color: "#2c3e50" }}>
+            💡 How to use:
+          </div>
+          <div>• 🔍 Search for attractions or click on the map markers</div>
+          <div>• 🎯 Select your destination to see crowd levels and details</div>
+          <div>• 🚗 Get smart routes with estimated travel times</div>
+          <div>• 🌤️ Check weather conditions for better planning</div>
+          <div>• 🟢 Green = not crowded, 🟡 Yellow = medium, 🔴 Red = crowded</div>
+          <div>• 📍 Routes automatically start from your current GPS location</div>
         </div>
-        <div style={{ marginTop:8 }}>
-          <label>Avoid: </label>
-          <select value={avoid} onChange={e=>setAvoid(e.target.value)}>
-            <option value="">(none)</option>
-            <option value="toll">toll</option>
-            <option value="motorway">motorway</option>
-            <option value="ferries">ferries</option>
-            <option value="schoolzone">schoolzone</option>
-            <option value="uturn">uturn</option>
-            <option value="toll|motorway">toll + motorway</option>
-          </select>
-        </div>
-
-        <div style={{ marginTop:12 }}>
-          <button onClick={getRoutes}>Get Routes</button>
-        </div>
-
-        <p style={{fontSize:12,opacity:.7,marginTop:12}}>
-          Click the map or search to pick a place. We color crowd: green (not crowded), yellow (medium), red (crowded).
-          Recommendations show quieter nearby spots. Routing uses your location if available.
-          Weather data helps plan your visit better!
-        </p>
       </div>
 
       <div id="map"></div>
