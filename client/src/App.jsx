@@ -127,8 +127,9 @@ export default function App() {
   const [map, setMap] = useState(null);
 
   // routing
-  const [o, setO] = useState("129.1580,35.1595"); // default: Haeundae
+  const [o, setO] = useState(""); // origin is set from geolocation; no hardcoded default
   const [d, setD] = useState("129.0403,35.1151"); // default: Busan Station
+  const [locError, setLocError] = useState(null);
   const [priority, setPriority] = useState("RECOMMEND");
   const [avoid, setAvoid] = useState(""); // "", "toll|motorway", etc.
   const [routes, setRoutes] = useState([]);
@@ -206,22 +207,35 @@ export default function App() {
       }
     });
 
-    // geolocate once
+    // continuously track the user's position so the origin is always current
+    let watchId = null;
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
+      watchId = navigator.geolocation.watchPosition(
         pos => {
           const lat = pos.coords.latitude;
           const lon = pos.coords.longitude;
           setMyLoc({ lat, lon });
           setO(`${lon},${lat}`);
+          setLocError(null);
         },
-        () => {/* ignore denial */},
-        { enableHighAccuracy: true, timeout: 8000 }
+        err => {
+          const msg =
+            err.code === err.PERMISSION_DENIED ? "Location permission denied" :
+            err.code === err.POSITION_UNAVAILABLE ? "Location unavailable" :
+            err.code === err.TIMEOUT ? "Location request timed out" :
+            "Could not get location";
+          console.warn("Geolocation error:", err);
+          setLocError(msg);
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
+    } else {
+      setLocError("Geolocation not supported by this browser");
     }
-    return () => { 
-      m.remove(); 
+    return () => {
+      m.remove();
       clearInterval(weatherInterval);
+      if (watchId != null) navigator.geolocation.clearWatch(watchId);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -270,9 +284,39 @@ export default function App() {
     return () => layers.forEach(l => l.remove());
   }, [map, routes]);
 
+  function requestCurrentPosition() {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error("Geolocation not supported"));
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        pos => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+        err => reject(err),
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    });
+  }
+
   async function getRoutes() {
+    // always build origin from the latest known GPS location
+    let origin = myLoc ? `${myLoc.lon},${myLoc.lat}` : "";
+    if (!origin) {
+      try {
+        const loc = await requestCurrentPosition();
+        setMyLoc(loc);
+        setO(`${loc.lon},${loc.lat}`);
+        setLocError(null);
+        origin = `${loc.lon},${loc.lat}`;
+      } catch (err) {
+        setLocError("Could not get your current location. Please enable location access.");
+        console.error("Geolocation failed:", err);
+        return;
+      }
+    }
+
     const res = await fetchJSON(
-      `/route?o=${encodeURIComponent(o)}&d=${encodeURIComponent(d)}` +
+      `/route?o=${encodeURIComponent(origin)}&d=${encodeURIComponent(d)}` +
       `&alts=true&prio=${encodeURIComponent(priority)}&avoid=${encodeURIComponent(avoid)}`
     );
     const parsed = (res.routes || []).map(rt => {
@@ -450,6 +494,13 @@ export default function App() {
               ✅ GPS Location Active
               <div style={{ marginTop: 4, opacity: 0.8 }}>
                 {myLoc.lat.toFixed(4)}, {myLoc.lon.toFixed(4)}
+              </div>
+            </div>
+          ) : locError ? (
+            <div style={{ fontSize: 12, color: "#c62828" }}>
+              ⚠️ {locError}
+              <div style={{ marginTop: 4, opacity: 0.8 }}>
+                Click "Get Routes" to retry, or enable location in your browser.
               </div>
             </div>
           ) : (
