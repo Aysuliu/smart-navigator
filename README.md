@@ -1,8 +1,10 @@
 # Busan Smart Navigator
 
+## Description
+
+Built for the **DIVE 2025 Global Data Hackathon**. 5th place out of 89 international teams at the **DIVE 2025 Global Data Hackathon**.
 AI-assisted navigation and trip planning for Busan, combining route data, local crowd signals, and weather-aware attraction advice.
 
-Built for the **DIVE 2025 Global Data Hackathon** — placed **5th out of 89 international teams**.
 
 ## What It Does
 
@@ -137,7 +139,6 @@ The client proxies `/route`, `/data`, `/api`, `/search-place`, and `/recommend-a
 | Event | DIVE 2025 — 2nd Global Data Hackathon |
 | --- | --- |
 | Date | August 23–24, 2025 |
-| Result | 5th place out of 89 international teams |
 | Theme | Smart city data utilization |
 
 ## Author
